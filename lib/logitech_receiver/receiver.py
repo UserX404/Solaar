@@ -544,24 +544,22 @@ class Ex100Receiver(Receiver):
             raise exceptions.NoSuchDevice(number=number, receiver=self, error="Not present 27Mhz device")
         kind = extract_device_kind(_get_kind_from_index(self, number))
         return {"wpid": wpid, "kind": kind, "polling": "", "serial": None, "power_switch": "(unknown)"}
-
-
-def _get_kind_from_index(receiver, index: int) -> int:
-    """Get device kind from 27Mhz device index"""
-    # From drivers/hid/hid-logitech-dj.c
-    if index == 1:  # mouse
-        kind = 2
-    elif index == 2:  # mouse
-        kind = 2
-    elif index == 3:  # keyboard
-        kind = 1
-    elif index == 4:  # numpad
-        kind = 3
-    else:  # unknown device number on 27Mhz receiver
-        logger.error("failed to calculate device kind for device %d of %s", index, receiver)
-        raise exceptions.NoSuchDevice(number=index, receiver=receiver, error="Unknown 27Mhz device number")
-    return kind
-
+    
+    def _get_kind_from_index(receiver, index: int) -> int:
+        """Get device kind from 27Mhz device index"""
+        # From drivers/hid/hid-logitech-dj.c
+        if index == 1:  # mouse
+            kind = 2
+        elif index == 2:  # mouse
+            kind = 2
+        elif index == 3:  # keyboard
+            kind = 1
+        elif index == 4:  # numpad
+            kind = 3
+        else:  # unknown device number on 27Mhz receiver
+            logger.error("failed to calculate device kind for device %d of %s", index, receiver)
+            raise exceptions.NoSuchDevice(number=index, receiver=receiver, error="Unknown 27Mhz device number")
+        return kind
 
 receiver_class_mapping = {
     "bolt": BoltReceiver,
