@@ -170,7 +170,8 @@ class Receiver:
         self.notification_flags = None
         self.pairing = Pairing()
         self.initialize(product_info)
-        hidpp10.set_configuration_pending_flags(self, 0xFF)
+        if self.receiver_kind != 'MX':
+            hidpp10.set_configuration_pending_flags(self, 0xFF)
 
     def initialize(self, product_info: dict):
         # read the receiver information subregister, so we can find out max_devices
@@ -542,6 +543,7 @@ class Ex100Receiver(Receiver):
         if not wpid:
             logger.error("Unable to get wpid from udev for device %d of %s", number, self)
             raise exceptions.NoSuchDevice(number=number, receiver=self, error="Not present 27Mhz device")
+        self.low_level.p
         kind = extract_device_kind(_get_kind_from_index(self, number))
         return {"wpid": wpid, "kind": kind, "polling": "", "serial": None, "power_switch": "(unknown)"}
     
@@ -561,12 +563,58 @@ class Ex100Receiver(Receiver):
             raise exceptions.NoSuchDevice(number=index, receiver=receiver, error="Unknown 27Mhz device number")
         return kind
 
+class MXReceiver(Receiver):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def initialize(self, product_info: dict):
+        serial_reply = self.read_register(Registers.MX_MAX_DEVICES)
+        if(int(serial_reply[1]) != product_info.get("max_devices", 1)):
+            serial_reply = self.write_register(Registers.MX_MAX_DEVICES,0x00,product_info.get("max_devices", 1))
+            serial_reply = self.read_register(Registers.MX_MAX_DEVICES)
+        self.max_devices = int(serial_reply[1])
+        serial_reply = self.write_register(Registers.MX_LOGON, 0x02)
+
+    def device_pairing_information(self, number: int) -> dict:
+        # extract WPID from udev path
+        wpid = self.low_level.find_paired_node_wpid(self.path, number)
+        if not wpid:
+            logger.error("Unable to get wpid from udev for device %d of %s", number, self)
+            raise exceptions.NoSuchDevice(number=number, receiver=self, error="Not present 27Mhz device")
+        return {"wpid": wpid, "kind": None, "polling": "", "serial": None, "power_switch": "(unknown)"}
+
+    # found responses
+    # 0x09 = 1
+    # 0x80 = 0x030101
+    # 0x283 = 0
+    # 0x285 = E700A9DE61000700040BB30006000000
+    # 0x286 = C6009360610007000007B00006000000
+    # 0x287 = 00000000000000000400000000000000
+    # 0x288 = 04383239310000000000000000000000
+    # 0x289 = 890200
+    # 0x28B = error 11
+    # 0x290 = error 10
+    # 0x291 = 0
+    # 0x292 = 0
+    # 0x99 = error 11
+    # 0xD0 = 0
+    # 0xD4 = error 10
+    # 0x2D5= error 10
+    # 0xD8 = error 9
+    # 0xD9 = error 10
+    # 0x2E3= error 10
+    # 0xF0 = 0
+    # 0xF1 = error 10
+        
+
 receiver_class_mapping = {
     "bolt": BoltReceiver,
     "unifying": UnifyingReceiver,
     "lightspeed": LightSpeedReceiver,
     "nano": NanoReceiver,
     "27Mhz": Ex100Receiver,
+    "MX": MXReceiver,
 }
 
 

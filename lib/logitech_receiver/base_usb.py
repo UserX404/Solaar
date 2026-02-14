@@ -140,6 +140,17 @@ def _ex100_receiver(product_id: int) -> dict:
         "re_pairs": True,
     }
 
+def _mx_receiver(product_id: int) -> dict:
+    return {
+        "vendor_id": LOGITECH_VENDOR_ID,
+        "product_id": product_id,
+        "usb_interface": 1,
+        "name": _("C-UB35"),
+        "receiver_kind": "MX",
+        "max_devices": 3,
+        "may_unpair": False,
+        "re_pairs": True,
+    }
 
 # Receivers added here should also be listed in
 # share/solaar/io.github.pwr_solaar.solaar.meta-info.xml
@@ -180,6 +191,9 @@ LIGHTSPEED_RECEIVER_C54D = _lightspeed_receiver(0xC54D)
 # EX100 old style receiver pre-unifying protocol
 EX100_27MHZ_RECEIVER_C517 = _ex100_receiver(0xC517)
 
+# C-UV35 and likely C-UB35 (as successor)
+MX_RECEIVER_C71C = _mx_receiver(0xC71C)
+
 KNOWN_RECEIVERS = {
     0xC548: BOLT_RECEIVER_C548,
     0xC52B: UNIFYING_RECEIVER_C52B,
@@ -206,6 +220,7 @@ KNOWN_RECEIVERS = {
     0xC547: LIGHTSPEED_RECEIVER_C547,
     0xC54D: LIGHTSPEED_RECEIVER_C54D,
     0xC517: EX100_27MHZ_RECEIVER_C517,
+    0xC71C: MX_RECEIVER_C71C,
 }
 
 
