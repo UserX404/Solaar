@@ -429,8 +429,7 @@ _D("G500s Gaming Mouse", codename="G500s Gaming", usbid=0xC24E, interface=1, pro
 _D("G502 Proteus Spectrum Optical Mouse", codename="G502 Proteus Spectrum", usbid=0xC332, interface=1)
 _D("Logitech PRO Gaming Keyboard", codename="PRO Gaming Keyboard", usbid=0xC339, interface=1)
 
-_D("Logitech MX Revolution Mouse M-RCL 124", codename="M-RCL 124", btid=0xB007, interface=1)
-
+_D("Logitech MX Revolution Mouse MX", codename="M-RCL 124", wpid="B007", btid=0xB007, interface=1,registers=(Reg.BATTERY_CHARGE,))
 # Trackballs
 
 _D("Wireless Trackball M570", codename="M570")
